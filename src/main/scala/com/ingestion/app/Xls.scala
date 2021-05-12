@@ -25,7 +25,7 @@ object Xls {
         read.data("readCsv", file.fileLocation)
       } else if (file.fileType == "mysql") {
         read.mysql("readMysql")
-      } else Seq.empty(3)
+      } else Seq.empty(0)
     }
     val write = new CreateDf
     val res = write.dataJSON(df)
