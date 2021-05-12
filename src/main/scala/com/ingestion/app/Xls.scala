@@ -1,7 +1,7 @@
 package com.ingestion.app
 
-import com.ingestion.addon.{Converter, Read, SparkConnecte}
-import com.ingestion.model.{CaseData, File}
+import com.ingestion.addon.{Converter, CreateDf, Read, SaveData, SparkConnecte}
+import com.ingestion.model.File
 import org.json4s.DefaultFormats
 
 object Xls {
@@ -11,10 +11,8 @@ object Xls {
   implicit val formats = DefaultFormats
 
   def main(args: Array[String]): Unit = {
-
     val connector = new SparkConnecte
     val spark = connector.getSession()
-    import spark.implicits._
 
     val read = new Read
     val data = Converter.conToJson("file")
@@ -25,16 +23,18 @@ object Xls {
         read.data("readXls", file.fileLocation)
       } else if (file.fileType == "csv") {
         read.data("readCsv", file.fileLocation)
-      }
-      else Seq.empty(3)
+      } else if (file.fileType == "mysql") {
+        read.mysql("readMysql")
+      } else Seq.empty(3)
     }
-    val dz = df.rdd.map(r => {
-      val rowAsMap: Map[String, Any] = r.getValuesMap[Any](r.schema.fieldNames)
-      val rowAsString:String= Converter.mapToJson(rowAsMap)
-      val rowAsSc: CaseData = Converter.jsonToCase(rowAsString)
-      rowAsSc
-    }).toDF()
-dz.show()
+    val write = new CreateDf
+    val res = write.dataJSON(df)
+    val test = write.dataColumn(df)
 
+    res.show()
+    test.show()
+    val save = new SaveData(res)
+
+    spark.sql("SELECT * FROM xls").show()
   }
 }

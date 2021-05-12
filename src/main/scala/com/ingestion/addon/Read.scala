@@ -30,6 +30,7 @@ class Read {
     spark.read
       .format(Sr.format)
       .options(Sr.options)
+      .load()
   }
 
 }
