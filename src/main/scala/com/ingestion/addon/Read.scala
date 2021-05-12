@@ -11,16 +11,25 @@ class Read {
 
   implicit val formats = DefaultFormats
 
-  def data(types: String, location: String) = {
+  def data(app: String, location: String) = {
 
 
-    val res = Converter.conToJson(types)
+    val res = Converter.conToJson(app)
     val Sr = parse(res).extract[ReadData]
 
     spark.read
       .format(Sr.format)
       .options(Sr.options)
       .load(location)
+  }
+
+  def mysql(app: String) = {
+    val res = Converter.conToJson(app)
+    val Sr = parse(res).extract[ReadData]
+
+    spark.read
+      .format(Sr.format)
+      .options(Sr.options)
   }
 
 }
